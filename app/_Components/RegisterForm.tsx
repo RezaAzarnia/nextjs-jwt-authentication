@@ -2,15 +2,15 @@
 import Link from "next/link";
 import React from "react";
 import Input from "./Input";
-import { ValidationError } from "@/app/app/_lib/utils";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema } from "@/app/app/_lib/userSchema";
-import { registerUser } from "@/app/app/_lib/auth";
 import { User } from "@/app/app/_lib/types";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 export default function RegisterForm() {
+  const router = useRouter();
   const methods = useForm<User>({
     resolver: zodResolver(registerSchema),
   });
@@ -24,26 +24,40 @@ export default function RegisterForm() {
 
   const handleRegister: SubmitHandler<User> = async (data: User) => {
     try {
-      const response = await registerUser(data);
-      if (response) reset();
-    } catch (error) {
-      if (error instanceof Error) {
-        toast(error.message, {
-          type: "error",
-          theme: "colored",
-        });
-      } else if (error instanceof ValidationError) {
-        const errors = JSON.parse(error.message).error;
-        Object.keys(errors).forEach((item) => {
-          setError(item as keyof User, {
+      const res = await fetch("/api/auth/register", {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      const response = await res.json();
+
+      if (res.ok) {
+        reset();
+        router.push("/");
+      }
+      if (response.status === 400) {
+        Object.entries(response.error).forEach((err) => {
+          console.log(err);
+          setError(err[0] as keyof User, {
             type: "server",
-            message: errors[item],
+            message: err[1] as string,
           });
         });
-      } else {
-        toast("An unexpected error occurred", {
+      } else if (res.status === 409) {
+        toast(response?.error, {
           type: "error",
           theme: "colored",
+          closeOnClick: true,
+        });
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        toast(error?.message, {
+          type: "error",
+          theme: "colored",
+          closeOnClick: true,
         });
       }
     }

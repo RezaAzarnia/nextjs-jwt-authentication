@@ -3,14 +3,15 @@ import Link from "next/link";
 import React from "react";
 import Input from "./Input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { loginSchema } from "../_lib/userSchema";
-import { User } from "@prisma/client";
+import { loginSchema } from "@/app/app/_lib/userSchema";
 import { FormProvider, useForm } from "react-hook-form";
-import { login } from "../_lib/auth";
-import { LoginUser } from "../_lib/types";
+import { useRouter } from "next/navigation";
+import { LoginUser } from "@/app/app/_lib/types";
 import { toast } from "react-toastify";
 
 export default function LoginForm() {
+  const router = useRouter();
+
   const methods = useForm<LoginUser>({
     resolver: zodResolver(loginSchema),
   });
@@ -20,13 +21,40 @@ export default function LoginForm() {
     setError,
     formState: { isSubmitting },
   } = methods;
+
   const handleLogin = async (data: LoginUser) => {
     try {
-      await login(data);
-    } catch (err) {
-      console.log(err);
-      if (err instanceof Error) {
-        toast(err.message, {
+      const res = await fetch("/api/auth/login", {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      const response = await res.json();
+      if (res.ok) {
+        router.push("/");
+        reset();
+      }
+      if (response.status === 400) {
+        Object.entries(response.error).forEach((err) => {
+          console.log(err);
+          setError(err[0] as keyof LoginUser, {
+            type: "server",
+            message: err[1] as string,
+          });
+        });
+      }
+      else if (response.status === 403) {
+        toast(response?.error, {
+          type: "error",
+          theme: "colored",
+          closeOnClick: true,
+        });
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        toast(error?.message, {
           type: "error",
           theme: "colored",
           closeOnClick: true,
@@ -34,6 +62,7 @@ export default function LoginForm() {
       }
     }
   };
+  
   return (
     <FormProvider {...methods}>
       <form
