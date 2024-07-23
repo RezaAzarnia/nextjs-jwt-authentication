@@ -1,10 +1,12 @@
+"use client";
 import Link from "next/link";
-import { getSession } from "@/app/app/_lib/auth";
 import LogoutButton from "./LogoutButton";
 import Navigation from "./Navigation";
+import { useSession } from "next-auth/react";
 
-export default async function Navbar() {
-  const user = await getSession();
+export default function Navbar() {
+  const { data: user } = useSession() 
+  console.log(user);
 
   return (
     <nav className="flex justify-between py-4 px-8 border-b border-gray-400 items-center">
@@ -12,7 +14,7 @@ export default async function Navbar() {
       <div className="flex gap-2 items-center">
         {user ? (
           <>
-            <span>{`Welcome ${user.username}`}</span>
+            <span>{`Welcome ${user && user?.username}`}</span>
             <LogoutButton />
           </>
         ) : (

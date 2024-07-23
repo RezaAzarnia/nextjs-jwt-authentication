@@ -8,7 +8,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { LoginUser } from "@/app/app/_lib/types";
 import { toast } from "react-toastify";
-
+import { signIn } from "next-auth/react";
 export default function LoginForm() {
   const router = useRouter();
 
@@ -18,39 +18,24 @@ export default function LoginForm() {
   const {
     handleSubmit,
     reset,
-    setError,
     formState: { isSubmitting },
   } = methods;
 
   const handleLogin = async (data: LoginUser) => {
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "post",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
+      const res = await signIn("credentials", {
+        ...data,
+        redirect: false,
       });
-      const response = await res.json();
-      if (res.ok) {
-        router.push("/");
-        reset();
-      }
-      if (response.status === 400) {
-        Object.entries(response.error).forEach((err) => {
-          console.log(err);
-          setError(err[0] as keyof LoginUser, {
-            type: "server",
-            message: err[1] as string,
-          });
-        });
-      }
-      else if (response.status === 403) {
-        toast(response?.error, {
+      if (res?.error) {
+        toast("email or password is wrong", {
           type: "error",
           theme: "colored",
           closeOnClick: true,
         });
+      }
+      if (!res?.error) {
+        router.push("/");
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -62,7 +47,7 @@ export default function LoginForm() {
       }
     }
   };
-  
+
   return (
     <FormProvider {...methods}>
       <form
