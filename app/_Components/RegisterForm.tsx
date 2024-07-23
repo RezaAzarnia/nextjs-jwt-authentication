@@ -24,7 +24,7 @@ export default function RegisterForm() {
 
   const handleRegister: SubmitHandler<User> = async (data: User) => {
     try {
-      const res = await fetch("/api/auth/register", {
+      const res = await fetch("/api/user/register", {
         method: "post",
         headers: {
           "Content-Type": "application/json",

@@ -10,6 +10,7 @@ export type LoginUser = {
 };
 
 export type RegisterdUser = {
+  accessToken : string;
   username: string;
   email: string;
   password: string;

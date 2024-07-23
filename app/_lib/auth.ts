@@ -1,39 +1,98 @@
-"use server";
-import prisma from "./db";
-import { RegisterdUser } from "./types";
-import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
-import { jwtVerify } from "jose";
+import NextAuth, { DefaultSession, JWT, Session } from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+import { NextRequest, NextResponse } from "next/server";
 
-const secret_key: Uint8Array = new TextEncoder().encode(
-  process.env.SECRET_KEY || "secrete-key"
-);
-type Payload = {
-  id: string;
-  email: string;
-};
+declare module "next-auth" {
+  interface Session {
+    accessToken: string;
+    username: string;
+    email: string;
+  }
 
-export async function getSession() {
-  const token = cookies().get("token");
+  interface User {
+    accessToken: string;
+    username: string;
+  }
 
-  if (token) {
-    const { payload } = (await jwtVerify(token?.value, secret_key)) as {
-      payload: Payload;
-    };
-    const user = await prisma.user.findUnique({
-      where: {
-        id: payload?.id,
-      },
-    });
-    if (!user) {
-      throw new Error("user undefind");
-    }
-    return user as RegisterdUser;
+  interface JWT {
+    accessToken: string;
+    username: string;
+    email: string;
   }
 }
 
-export const removeSession = async () => {
-  cookies().delete("token");
-  cookies().delete("refresh_token");
-  redirect("/login");
-};
+export const { handlers, signIn, signOut, auth } = NextAuth({
+  providers: [
+    Credentials({
+      authorize: async (credentials) => {
+        try {
+          const res = await fetch("http://localhost:3000/api/user/login", {
+            method: "post",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(credentials),
+          });
+          if (!res.ok) {
+            throw new Error("invalid crediationls");
+          }
+          const user = await res.json();
+          return user;
+        } catch (error) {
+          if (error instanceof Error) {
+            throw new Error("eome thing went wrong");
+          }
+        }
+      },
+    }),
+  ],
+  callbacks: {
+    jwt: async ({ user, token }) => {
+      if (user) {
+        token.accessToken = user.accessToken;
+        token.username = user.username;
+      }
+      return token;
+    },
+
+    session: async ({
+      session,
+      token,
+    }: {
+      session: Session;
+      token: JWT;
+    }): Promise<Session | undefined> => {
+      if (token) {
+        session.accessToken = token.accessToken;
+        session.username = token.username;
+        session.email = token.email;
+
+        return session;
+      }
+    },
+    authorized: ({
+      request,
+      auth,
+    }: {
+      request: NextRequest;
+      auth: Session | null;
+    }) => {
+      const protectPath = ["/", "/dashboard"];
+      const authPaths = ["/login", "/register"];
+
+      const url = new URL(request.url);
+      if (auth && authPaths.includes(url.pathname)) {
+        const newUrl = new URL("/", request.nextUrl.origin);
+        return Response.redirect(newUrl);
+      } else if (!auth && protectPath.includes(url.pathname)) {
+        const newUrl = new URL("/login", request.nextUrl.origin);
+        return Response.redirect(newUrl);
+      }
+      return NextResponse.next();
+    },
+  },
+
+  pages: {
+    signIn: "/login",
+  },
+});
