@@ -1,5 +1,4 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { cookies } from "next/headers";
 export class ValidationError extends Error {
   constructor(message: string) {
     super(message);

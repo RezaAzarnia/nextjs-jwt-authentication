@@ -25,12 +25,6 @@ export default function Navigation() {
           <Link href={"/"}>Home</Link>
         </li>
         <li className="cursor-pointer hover:text-black transition-colors">
-          <Link href={"/web"}>Web design</Link>
-        </li>
-        <li className="cursor-pointer hover:text-black transition-colors">
-          <Link href={"/mobile"}>Mobile design</Link>
-        </li>
-        <li className="cursor-pointer hover:text-black transition-colors">
           <Link href={"/dashboard"}>dashboard</Link>
         </li>
       </ul>

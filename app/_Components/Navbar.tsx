@@ -6,10 +6,9 @@ import { useSession } from "next-auth/react";
 
 export default function Navbar() {
   const { data: user } = useSession() 
-  console.log(user);
 
   return (
-    <nav className="flex justify-between py-4 px-8 border-b border-gray-400 items-center">
+    <nav className="flex justify-between py-4 md:px-6 border-b border-gray-400 items-center">
       <Navigation />
       <div className="flex gap-2 items-center">
         {user ? (

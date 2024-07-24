@@ -17,7 +17,6 @@ export default function LoginForm() {
   });
   const {
     handleSubmit,
-    reset,
     formState: { isSubmitting },
   } = methods;
 
