@@ -2,6 +2,7 @@ import prisma from "@/app/app/_lib/db";
 import { loginSchema } from "@/app/app/_lib/userSchema";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export async function POST(request: Request) {
   const data = await request.json();
@@ -38,9 +39,17 @@ export async function POST(request: Request) {
         }
       );
     }
+    const token = jwt.sign(user, process.env.SECRET_KEY ?? "Secret_key", {
+      expiresIn: "1h",
+    });
+    const refreshToken = jwt.sign(
+      user,
+      process.env.REFRESH_SECRET_KEY ?? "Refresh_Secret_key",
+      { expiresIn: "1d" }
+    );
 
     return NextResponse.json(
-      { ...user, accessToken: "my token" },
+      { ...user, accessToken: token, refreshToken: refreshToken },
       {
         status: 201,
       }

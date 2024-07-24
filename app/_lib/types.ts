@@ -9,10 +9,7 @@ export type LoginUser = {
   password: string;
 };
 
-export type RegisterdUser = {
-  accessToken : string;
-  username: string;
-  email: string;
-  password: string;
+export interface RegisterdUser extends User {
+  accessToken: string;
   createAt: Date;
-};
+}
