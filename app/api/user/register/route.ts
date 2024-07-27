@@ -3,11 +3,6 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import prisma from "@/app/app/_lib/db";
 import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
-
-const secret_key: string = process.env.SECRET_KEY || "secrete-key";
-const refresh_secret_key: string =
-  process.env.REFRESH_SECRET_KEY || "refresh-secrete-key";
 
 export async function POST(req: Request) {
   const data = await req.json();
@@ -54,22 +49,6 @@ export async function POST(req: Request) {
         password: await hashedPassword(password),
       },
     });
-    const token = jwt.sign({ id: user.id, email: user.email }, secret_key, {
-      expiresIn: "1h",
-    });
-    const refsrehToken = jwt.sign(
-      { id: user.id, email: user.email },
-      refresh_secret_key,
-      {
-        expiresIn: "2d",
-      }
-    );
-    const cookieOption = {
-      httpOnly: true,
-      expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-    };
-    cookies().set("token", token, cookieOption);
-    cookies().set("refresh_token", refsrehToken, cookieOption);
 
     return NextResponse.json(
       {

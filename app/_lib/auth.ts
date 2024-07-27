@@ -1,19 +1,30 @@
-import NextAuth, { JWT, Session } from "next-auth";
+import NextAuth, { Session } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { NextRequest, NextResponse } from "next/server";
-import { RegisterdUser } from "./types";
 import { isTokenExpired } from "./utils";
-
 declare module "next-auth" {
-  interface Session extends RegisterdUser {
-    refreshToken: string;
-  }
-  interface JWT extends Session {}
-
-  interface User {
-    accessToken: string;
+  interface Session {
+    email: string;
     username: string;
     refreshToken: string;
+    expires: number; // Assuming this property represents token expiration time
+    accessToken: string;
+    createdAt: number; // Assuming this property represents token creation time
+    // Add other missing properties from RegisteredUser if needed
+  }
+  interface JWT {
+    email: string;
+    username: string;
+    refreshToken: string;
+    expires: number; // Assuming this property represents token expiration time
+    accessToken: string;
+    createdAt: number; // Assuming this property represents token creation time
+    // Add other missing pr
+  }
+  interface User {
+    accessToken: string;
+    refreshToken: string;
+    username: string;
   }
 }
 
@@ -43,7 +54,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
-    jwt: async ({ user, token }: { user: Session; token: JWT }) => {
+    jwt: async ({ user, token }) => {
       if (user) {
         return {
           accessToken: user.accessToken,
@@ -52,7 +63,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           email: user.email,
         };
       }
-      if (isTokenExpired(token?.accessToken)) {
+      if (isTokenExpired(token.accessToken as string)) {
         try {
           const res = await fetch("http://localhost:3000/api/user/token", {
             method: "post",
@@ -73,14 +84,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return token;
     },
 
-    session: async ({ session, token }: { session: Session; token: JWT }) => {
-      session.accessToken = token.accessToken;
-      session.refreshToken = token.refreshToken;
-      session.username = token.username;
-      session.email = token.email;
+    session: async ({ session, token }) => {
+      session.accessToken = token.accessToken as string;
+      session.refreshToken = token.refreshToken as string;
+      session.username = token.username as string;
+      session.email = token.email as string;
 
       return session;
     },
+
     authorized: ({
       request,
       auth,
@@ -107,3 +119,4 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signIn: "/login",
   },
 });
+
