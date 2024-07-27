@@ -1,12 +1,10 @@
-"use client";
-import Link from "next/link";
 import LogoutButton from "./LogoutButton";
 import Navigation from "./Navigation";
-import { useSession } from "next-auth/react";
+import { auth } from "../_lib/auth";
+import Button from "./Button";
 
-export default function Navbar() {
-  const { data: user } = useSession() 
-
+export default async function Navbar() {
+  const user = await auth();
   return (
     <nav className="flex justify-between py-4 md:px-6 border-b border-gray-400 items-center">
       <Navigation />
@@ -18,18 +16,12 @@ export default function Navbar() {
           </>
         ) : (
           <>
-            <Link
-              href={"/login"}
-              className="text-black border border-1 border-black px-8 py-2 capitalize rounded-md hover:text-white hover:bg-black transition-colors"
-            >
+            <Button href="/login" variant="outline">
               login
-            </Link>
-            <Link
-              href={"/register"}
-              className="text-white bg-black px-8 py-2 capitalize rounded-md hover:text-black hover:bg-transparent hover:border hover:border-black transition-colors"
-            >
+            </Button>
+            <Button href="/register" variant="solid">
               sign up
-            </Link>
+            </Button>
           </>
         )}
       </div>

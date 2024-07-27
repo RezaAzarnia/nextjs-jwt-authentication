@@ -103,7 +103,8 @@ export default function RegisterForm() {
         </div>
         <div>
           <button
-            className="bg-black px-8 py-4 text-white rounded-full w-full lg:w-1/3 text-center disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="bg-black px-8 py-4 text-white 
+            rounded-full w-full lg:w-1/3 text-center disabled:bg-gray-400 disabled:cursor-not-allowed"
             disabled={isSubmitting}
           >
             {isSubmitting ? <div className="spinner-mini"></div> : "Sign up"}

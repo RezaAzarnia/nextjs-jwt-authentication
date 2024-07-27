@@ -84,7 +84,7 @@ export default function LoginForm() {
           <div className="mt-3">
             <span>Don&apos;t have an account? </span>
             <Link
-              href={"/sign up"}
+              href={"/register"}
               className="text-blue-700
         underline underline-offset-4"
             >
