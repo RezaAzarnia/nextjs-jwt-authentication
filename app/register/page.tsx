@@ -5,7 +5,7 @@ import RegisterForm from "@/app/app/_Components/RegisterForm";
 export default function page() {
   return (
     <div className="grid grid-cols-2">
-      <div className="relative col-span-1">
+      <div className="hidden sm:block sm:relative sm:col-span-1">
         <Image
           src={registerPicture}
           fill={true}
@@ -15,7 +15,7 @@ export default function page() {
           alt="regitser picture"
         />
       </div>
-      <div className="col-span-1 p-10">
+      <div className="col-span-2 sm:col-span-1 p-6 sm:p-8">
         <RegisterForm />
       </div>
     </div>

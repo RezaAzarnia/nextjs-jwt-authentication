@@ -15,7 +15,7 @@ export default function Navigation() {
         <Hamburger />
       </button>
       <ul
-        className={`absolute bg-white shadow-xl shadow-slate-700 
+        className={`absolute z-10 bg-white shadow-xl shadow-slate-700 
         min-w-[250px] transition-all p-8 h-full space-y-8
         ${isOpen ? "left-0" : "-left-full"}
 

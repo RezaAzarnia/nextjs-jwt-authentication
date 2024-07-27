@@ -103,17 +103,17 @@ export default function RegisterForm() {
         </div>
         <div>
           <button
-            className="bg-black px-8 py-4 text-white rounded-full w-full lg:w-1/3 text-center disabled:bg-gray-500 disabled:cursor-not-allowed"
+            className="bg-black px-8 py-4 text-white rounded-full w-full lg:w-1/3 text-center disabled:bg-gray-400 disabled:cursor-not-allowed"
             disabled={isSubmitting}
           >
-            Sign up
+            {isSubmitting ? <div className="spinner-mini"></div> : "Sign up"}
           </button>
           <div className="mt-3">
             <span>Already have an account?</span>
             <Link
               href={"/login"}
               className="text-blue-700
-          underline underline-offset-4"
+               underline underline-offset-4"
             >
               Log in
             </Link>

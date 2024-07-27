@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { LoginUser } from "@/app/app/_lib/types";
 import { toast } from "react-toastify";
 import { signIn } from "next-auth/react";
+
 export default function LoginForm() {
   const router = useRouter();
 
@@ -26,15 +27,14 @@ export default function LoginForm() {
         ...data,
         redirect: false,
       });
-      if (res?.error) {
-        toast("email or password is wrong", {
+      if (!res?.error) {
+        window.location.href = "/";
+      } else if (res?.error) {
+        toast("Email or password is wrong", {
           type: "error",
           theme: "colored",
           closeOnClick: true,
         });
-      }
-      if (!res?.error) {
-        router.push("/");
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -76,10 +76,10 @@ export default function LoginForm() {
         </div>
         <div>
           <button
-            className="bg-black px-8 py-4 text-white rounded-full w-full lg:w-1/3 text-center disabled:bg-gray-500 disabled:cursor-not-allowed"
+            className="bg-black px-8 py-4 text-white rounded-full w-full lg:w-1/3 text-center disabled:bg-gray-400 disabled:cursor-not-allowed"
             disabled={isSubmitting}
           >
-            Log in
+            {isSubmitting ? <div className="spinner-mini"></div> : " Log in"}
           </button>
           <div className="mt-3">
             <span>Don&apos;t have an account? </span>

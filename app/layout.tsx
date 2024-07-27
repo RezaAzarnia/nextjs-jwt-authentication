@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
-import Navbar from "@/app/app/_Components/Navbar";
 import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import "./globals.css";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "./_lib/auth";
+import Navbar from "@/app/app/_Components/Navbar";
+import "react-toastify/dist/ReactToastify.css";
+import "./_styles/globals.css";
 
 const inter = Poppins({ subsets: ["latin"], weight: "400" });
 
@@ -19,7 +19,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth()
+  const session = await auth();
   return (
     <html lang="en">
       <body className={inter.className}>
